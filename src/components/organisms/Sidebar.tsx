@@ -3,15 +3,15 @@ import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Stethoscope,
-  Calendar,
-  DollarSign,
-  BookOpen,
+  // Calendar,
+  // DollarSign,
+  // BookOpen,
   ChevronLeft,
   ChevronRight,
   Settings,
-  Users,
+  //Users,
   LandPlot,
-  ClipboardList,
+  //ClipboardList,
   User,
   UsersRound,
   Shell,
@@ -59,11 +59,7 @@ const Sidebar = ({
       name: "Usuarios",
       path: "/users",
       icon: <User className="h-5 w-5" />,
-    },
-    {
-      name: "Áreas",
-      path: "/areas",
-      icon: <LandPlot className="h-5 w-5" />,
+      roles: ["admin"],
     },
     {
       name: "Servicios",
@@ -125,10 +121,24 @@ const Sidebar = ({
     // },
   ];
 
+  const nomNavItems: NavItem[] = [
+    {
+      name: "Áreas",
+      path: "/areas",
+      icon: <LandPlot className="h-5 w-5" />,
+      roles: ["admin"],
+    },
+  ];
+
   // Filter items based on user role
   const filteredNavItems = navItems.filter((item) => {
     if (!item.roles) return true;
-    return user?.role && item.roles.includes(user.role);
+    return user?.rol && item.roles.includes(user.rol);
+  });
+
+  const filteredNomNavItems = nomNavItems.filter((item) => {
+    if (!item.roles) return true;
+    return user?.rol && item.roles.includes(user.rol);
   });
 
   return (
@@ -174,6 +184,37 @@ const Sidebar = ({
         {/* Navigation links */}
         <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
           {filteredNavItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                `flex items-center px-3 py-2 rounded-md transition-colors ${
+                  isActive
+                    ? "bg-primary/10 text-primary"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                } ${collapsed ? "justify-center" : "justify-start"}`
+              }
+            >
+              <div className={collapsed ? "" : "mr-3"}>{item.icon}</div>
+              {!collapsed && <span>{item.name}</span>}
+            </NavLink>
+          ))}
+
+          {/* Nomenclatures divisor */}
+          {user?.rol == "admin" && (
+            <div className="relative my-2">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+              </div>
+              <div className="relative flex justify-center">
+                <span className="text-md font-bold bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-2">
+                  Nomencladores
+                </span>
+              </div>
+            </div>
+          )}
+
+          {filteredNomNavItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}

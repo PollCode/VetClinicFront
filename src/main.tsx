@@ -13,7 +13,7 @@ createRoot(document.getElementById("root")!).render(
       <ThemeProvider>
         <AuthContextProvider>
           <App />
-          <Toaster position="top-center" />
+          <Toaster position="top-center" toastOptions={{ duration: 5000 }} />
         </AuthContextProvider>
       </ThemeProvider>
     </Router>

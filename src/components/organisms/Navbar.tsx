@@ -45,25 +45,6 @@ const Navbar = ({ height, onMenuClick }: NavbarProps) => {
           >
             <Menu className="h-5 w-5 text-gray-500 dark:text-gray-300" />
           </button>
-
-          {/* Search */}
-          {/* <form
-            onSubmit={handleSearch}
-            className="hidden md:flex ml-4 relative"
-          >
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Search className="h-4 w-4 text-gray-400" />
-              </div>
-              <input
-                type="search"
-                className="block w-full p-2 pl-10 text-sm border border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-primary focus:border-primary"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </form> */}
         </div>
 
         {/* Right section */}

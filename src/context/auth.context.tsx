@@ -76,7 +76,7 @@ export const AuthContextProvider: React.FC<{ children: React.ReactNode }> = ({
       localStorage.setItem("access", response.access);
       localStorage.setItem("refresh", response.refresh);
       localStorage.setItem("full_name", decoded.full_name);
-      localStorage.setItem("local", decoded.rol);
+      localStorage.setItem("rol", decoded.rol);
       localStorage.setItem("tokenTimestamp", Date.now().toString());
 
       // Configurar expiración programada [[3]]

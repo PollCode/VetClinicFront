@@ -22,11 +22,13 @@ import {
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import { api } from "../../../services/api/index";
-import { IUser } from "../../../interfaces/users";
-//import UserCreationForm from "./AddUser";
-//import UserEditForm from "./UpdateUser";
-//import UserDetailsModal from "./DetailUser";
-//import UserDeleteModal from "./DeleteUser";
+import { IUser } from "../../../types/user.types";
+import UserCreationForm from "./AddUser";
+import UserEditForm from "./UpdateUser";
+import UserDetailsModal from "./DetailUser";
+import toast from "react-hot-toast";
+import axios from "axios";
+import UserDeleteModal from "./DeleteUser";
 //import { Link } from "react-router-dom";
 
 const UserManagement = () => {
@@ -35,11 +37,11 @@ const UserManagement = () => {
   const [users, setUsers] = useState<IUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  //   const [userModalOpen, setUserModalOpen] = useState(false);
-  //   const [editModalOpen, setEditModalOpen] = useState(false);
-  //   const [detailModalOpen, setDetailModalOpen] = useState(false);
-  //   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  //   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
+  const [userModalOpen, setUserModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
 
   const fetchUsers = async () => {
     try {
@@ -53,50 +55,92 @@ const UserManagement = () => {
     }
   };
 
-  //   const refetchUsers = async () => {
-  //     await fetchUsers();
-  //   };
+  const refetchUsers = async () => {
+    await fetchUsers();
+  };
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  //   const handleEditUser = async (userId: number) => {
-  //     try {
-  //       const response = await api.get(`/users/${userId}/`);
-  //       const userData = response.data;
-  //       setSelectedUser({
-  //         ...userData,
-  //         area: {
-  //           id: userData.area.id,
-  //           nombre: userData.area.nombre,
-  //         },
-  //       });
-  //       setEditModalOpen(true);
-  //     } catch (error) {
-  //       console.error("Error fetching user data:", error);
-  //     }
-  //   };
+  const handleEditUser = async (userId: number) => {
+    try {
+      const response = await api.get(`/users/${userId}/`);
+      const userData: IUser = response.data;
+      setSelectedUser({ ...userData });
+      setEditModalOpen(true);
+    } catch (err) {
+      const validFields = ["detail"];
 
-  //   const handleViewUser = async (userId: number) => {
-  //     try {
-  //       const response = await api.get(`/users/${userId}/`);
-  //       setSelectedUser(response.data);
-  //       setDetailModalOpen(true);
-  //     } catch (error) {
-  //       console.error("Error fetching user data:", error);
-  //     }
-  //   };
+      if (axios.isAxiosError(err) && err.response?.data) {
+        Object.entries(err.response.data).forEach(([key, value]) => {
+          const message = Array.isArray(value)
+            ? value.join(", ")
+            : String(value);
 
-  //   const handleUserDeleted = async (userId: number) => {
-  //     try {
-  //       const response = await api.get(`/users/${userId}/`);
-  //       setSelectedUser(response.data);
-  //       setDeleteModalOpen(true);
-  //     } catch (error) {
-  //       console.error("Error fetching user data:", error);
-  //     }
-  //   };
+          if (validFields.includes(key)) {
+            setError(message);
+          } else {
+            setError(message);
+          }
+        });
+      }
+      toast.error(error);
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  const handleViewUser = async (userId: number) => {
+    try {
+      const response = await api.get(`/users/${userId}/`);
+      setSelectedUser(response.data);
+      setDetailModalOpen(true);
+    } catch (err) {
+      const validFields = ["detail"];
+
+      if (axios.isAxiosError(err) && err.response?.data) {
+        Object.entries(err.response.data).forEach(([key, value]) => {
+          const message = Array.isArray(value)
+            ? value.join(", ")
+            : String(value);
+
+          if (validFields.includes(key)) {
+            setError(message);
+          } else {
+            setError(message);
+          }
+        });
+      }
+      toast.error(error);
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  const handleUserDeleted = async (userId: number) => {
+    try {
+      const response = await api.get(`/users/${userId}/`);
+      setSelectedUser(response.data);
+      setDeleteModalOpen(true);
+    } catch (err) {
+      const validFields = ["detail"];
+
+      if (axios.isAxiosError(err) && err.response?.data) {
+        Object.entries(err.response.data).forEach(([key, value]) => {
+          const message = Array.isArray(value)
+            ? value.join(", ")
+            : String(value);
+
+          if (validFields.includes(key)) {
+            setError(message);
+          } else {
+            setError(message);
+          }
+        });
+      }
+      toast.error(error);
+      console.error("Error fetching user data:", error);
+    }
+  };
 
   const columnHelper = createColumnHelper<IUser>();
 
@@ -157,29 +201,29 @@ const UserManagement = () => {
       header: "Área",
       cell: (info) => {
         const area = info.getValue();
-        return area ? area.nombre : "Sin área";
+        return area ? area.name : "Sin área";
       },
     }),
     columnHelper.display({
       id: "actions",
-      header: "Actions",
-      cell: () => (
+      header: "Operaciones",
+      cell: (cell) => (
         <div className="flex space-x-2">
           <button
             className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
-            //onClick={() => handleViewUser(cell.row.original.id)}
+            onClick={() => handleViewUser(cell.row.original.id)}
           >
             <Eye className="h-4 w-4" />
           </button>
           <button
             className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
-            //onClick={() => handleEditUser(cell.row.original.id)}
+            onClick={() => handleEditUser(cell.row.original.id)}
           >
             <Edit className="h-4 w-4" />
           </button>
           <button
             className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
-            //onClick={() => handleUserDeleted(cell.row.original.id)}
+            onClick={() => handleUserDeleted(cell.row.original.id)}
           >
             <Trash className="h-4 w-4" />
           </button>
@@ -226,17 +270,17 @@ const UserManagement = () => {
 
         <Button
           leftIcon={<Plus className="h-4 w-4" />}
-          //onClick={() => setUserModalOpen(true)}
+          onClick={() => setUserModalOpen(true)}
         >
           Agregar usuario
         </Button>
-        {/* <UserCreationForm
+        <UserCreationForm
           isOpen={userModalOpen}
           onClose={() => setUserModalOpen(false)}
           onUserCreated={refetchUsers}
-        /> */}
+        />
         {/* Modal de edición */}
-        {/* {selectedUser && (
+        {selectedUser && (
           <UserEditForm
             isOpen={editModalOpen}
             onClose={() => setEditModalOpen(false)}
@@ -259,7 +303,7 @@ const UserManagement = () => {
             refetchUsers();
           }}
           userData={selectedUser}
-        /> */}
+        />
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
