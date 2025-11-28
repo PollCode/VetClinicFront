@@ -14,8 +14,11 @@ const UserManagment = lazy(
 const AreaManagement = lazy(
   () => import("./components/pages/areas/AreaManagement")
 );
-const PatientManagement = lazy(
-  () => import("./components/pages/PatientManagement")
+const SpeciesManagement = lazy(
+  () => import("./components/pages/species/SpeciesManagement")
+);
+const BreedManagement = lazy(
+  () => import("./components/pages/breeds/BreedManagement")
 );
 const Appointments = lazy(() => import("./components/pages/Appointments"));
 const FinancialModule = lazy(
@@ -74,11 +77,21 @@ function App() {
           }
         />
         <Route
-          path="/patients"
+          path="/species"
           element={
             <ProtectedRoute>
               <Layout>
-                <PatientManagement />
+                <SpeciesManagement />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/breeds"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <BreedManagement />
               </Layout>
             </ProtectedRoute>
           }

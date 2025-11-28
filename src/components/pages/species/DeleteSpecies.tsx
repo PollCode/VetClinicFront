@@ -4,40 +4,40 @@ import { X } from "lucide-react";
 import api from "../../../services/api";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { IAreaBase } from "../../../types/area.types";
+import { ISpeciesBase } from "../../../types/species.types";
 
-interface AreaDeleteModalProps {
+interface SpeciesDeleteModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAreaDeleted: () => void;
-  areaData: IAreaBase | null;
+  onSpeciesDeleted: () => void;
+  speciesData: ISpeciesBase | null;
 }
 
-const AreaDeleteModal: React.FC<AreaDeleteModalProps> = ({
+const SpeciesDeleteModal: React.FC<SpeciesDeleteModalProps> = ({
   isOpen,
   onClose,
-  onAreaDeleted,
-  areaData,
+  onSpeciesDeleted,
+  speciesData,
 }) => {
   const [isLoading, setLoading] = useState(false);
-  console.log(areaData);
+  console.log(speciesData);
   const handleDelete = async () => {
     try {
       setLoading(true);
 
       // Llamada al endpoint de eliminación
-      await api.delete(`areas/${areaData?.id}/`);
+      await api.delete(`species/${speciesData?.id}/`);
 
       // Mostrar notificación de éxito
-      toast.success("Área eliminada correctamente");
+      toast.success("Especie eliminada correctamente");
 
       // Notificar al componente padre
-      onAreaDeleted();
+      onSpeciesDeleted();
 
       // Cerrar modal
       onClose();
     } catch (error) {
-      let errorMessage = "Error al eliminar el área";
+      let errorMessage = "Error al eliminar la especie";
 
       // Manejo de errores específicos
       if (axios.isAxiosError(error)) {
@@ -63,7 +63,7 @@ const AreaDeleteModal: React.FC<AreaDeleteModalProps> = ({
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full">
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-            Eliminar Área
+            Eliminar Especie
           </h3>
           <button
             className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
@@ -77,8 +77,8 @@ const AreaDeleteModal: React.FC<AreaDeleteModalProps> = ({
         <div className="p-6">
           <div className="mb-4">
             <p className="text-gray-600 dark:text-gray-300">
-              ¿Estás seguro de que deseas eliminar el área
-              <span className="font-medium"> {areaData?.name}</span>?
+              ¿Estás seguro de que deseas eliminar la especie
+              <span className="font-medium"> {speciesData?.name}</span>?
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
               Esta acción no se puede deshacer y eliminará permanentemente el
@@ -104,4 +104,4 @@ const AreaDeleteModal: React.FC<AreaDeleteModalProps> = ({
   );
 };
 
-export default AreaDeleteModal;
+export default SpeciesDeleteModal;

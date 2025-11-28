@@ -22,31 +22,31 @@ import {
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import { api } from "../../../services/api/index";
-import { IArea } from "../../../types/area.types";
-import AreaDetailsModal from "./DetailArea";
-import AreaCreationForm from "./AddArea";
 import axios from "axios";
 import toast from "react-hot-toast";
-import AreaEditForm from "./UpdateArea";
-import AreaDeleteModal from "./DeleteArea";
+import { ISpecies } from "../../../types/species.types";
+import SpeciesCreationForm from "./AddSpecies";
+import SpeciesEditForm from "./UpdateSpecies";
+import SpeciesDetailsModal from "./DetailSpecies";
+import SpeciesDeleteModal from "./DeleteSpecies";
 
-const AreaManagement = () => {
-  const [areas, setAreas] = useState<IArea[]>([]);
+const SpeciesManagement = () => {
+  const [species, setSpecies] = useState<ISpecies[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [createAreaModalOpen, setCreateAreaModalOpen] = useState(false);
-  const [editAreaModalOpen, setEditAreaModalOpen] = useState(false);
-  const [selectedArea, setSelectedArea] = useState<IArea | null>(null);
-  const [deleteAreaModalOpen, setDeleteAreaModalOpen] = useState(false);
-  const [detailAreaModalOpen, setDetailAreaModalOpen] = useState(false);
+  const [createSpeciesModalOpen, setCreateSpeciesModalOpen] = useState(false);
+  const [editSpeciesModalOpen, setEditSpeciesModalOpen] = useState(false);
+  const [selectedSpecies, setSelectedSpecies] = useState<ISpecies | null>(null);
+  const [deleteSpeciesModalOpen, setDeleteSpeciesModalOpen] = useState(false);
+  const [detailSpeciesModalOpen, setDetailSpeciesModalOpen] = useState(false);
 
-  const fetchAreas = async () => {
+  const fetchSpecies = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/areas/");
-      setAreas(response.data);
+      const response = await api.get("/species/");
+      setSpecies(response.data);
     } catch (err) {
       const validFields = ["detail"];
 
@@ -64,26 +64,26 @@ const AreaManagement = () => {
         });
       }
       toast.error(error);
-      console.error("Error fetching area data:", error);
+      console.error("Error fetching species data:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const refreshAreas = () => {
-    fetchAreas();
+  const refreshSpecies = () => {
+    fetchSpecies();
   };
 
   useEffect(() => {
-    fetchAreas();
+    fetchSpecies();
   }, []);
 
   //Handlers
-  const handleEditArea = async (areaId: number) => {
+  const handleEditSpecies = async (speciesId: number) => {
     try {
-      const response = await api.get(`/areas/${areaId}/`);
-      setSelectedArea(response.data);
-      setEditAreaModalOpen(true);
+      const response = await api.get(`/species/${speciesId}/`);
+      setSelectedSpecies(response.data);
+      setEditSpeciesModalOpen(true);
     } catch (err) {
       const validFields = ["detail"];
 
@@ -101,15 +101,15 @@ const AreaManagement = () => {
         });
       }
       toast.error(error);
-      console.error("Error fetching area data:", error);
+      console.error("Error fetching species data:", error);
     }
   };
 
-  const handleViewArea = async (areaId: number) => {
+  const handleViewSpecies = async (speciesId: number) => {
     try {
-      const response = await api.get(`/areas/${areaId}/`);
-      setSelectedArea(response.data);
-      setDetailAreaModalOpen(true);
+      const response = await api.get(`/species/${speciesId}/`);
+      setSelectedSpecies(response.data);
+      setDetailSpeciesModalOpen(true);
     } catch (err) {
       const validFields = ["detail"];
 
@@ -127,15 +127,15 @@ const AreaManagement = () => {
         });
       }
       toast.error(error);
-      console.error("Error fetching area data:", error);
+      console.error("Error fetching species data:", error);
     }
   };
 
-  const handleAreaDeleted = async (areaId: number) => {
+  const handleSpeciesDeleted = async (speciesId: number) => {
     try {
-      const response = await api.get(`/areas/${areaId}/`);
-      setSelectedArea(response.data);
-      setDeleteAreaModalOpen(true);
+      const response = await api.get(`/species/${speciesId}/`);
+      setSelectedSpecies(response.data);
+      setDeleteSpeciesModalOpen(true);
     } catch (err) {
       const validFields = ["detail"];
 
@@ -153,11 +153,11 @@ const AreaManagement = () => {
         });
       }
       toast.error(error);
-      console.error("Error fetching area data:", error);
+      console.error("Error fetching species data:", error);
     }
   };
 
-  const columnHelper = createColumnHelper<IArea>();
+  const columnHelper = createColumnHelper<ISpecies>();
 
   const columns = [
     columnHelper.accessor("name", {
@@ -175,19 +175,19 @@ const AreaManagement = () => {
         <div className="flex space-x-2">
           <button
             className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
-            onClick={() => handleViewArea(cell.row.original.id)}
+            onClick={() => handleViewSpecies(cell.row.original.id)}
           >
             <Eye className="h-4 w-4" />
           </button>
           <button
             className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
-            onClick={() => handleEditArea(cell.row.original.id)}
+            onClick={() => handleEditSpecies(cell.row.original.id)}
           >
             <Edit className="h-4 w-4" />
           </button>
           <button
             className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
-            onClick={() => handleAreaDeleted(cell.row.original.id)}
+            onClick={() => handleSpeciesDeleted(cell.row.original.id)}
           >
             <Trash className="h-4 w-4" />
           </button>
@@ -197,7 +197,7 @@ const AreaManagement = () => {
   ];
 
   const table = useReactTable({
-    data: areas,
+    data: species,
     columns,
     state: {
       sorting,
@@ -210,7 +210,7 @@ const AreaManagement = () => {
   });
 
   if (loading) {
-    return <div>Cargando áreas...</div>;
+    return <div>Cargando especies...</div>;
   }
 
   if (error) {
@@ -222,47 +222,47 @@ const AreaManagement = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Gestión de Áreas
+            Gestión de Especies
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Gestione las áreas de la clínica
+            Gestione las especies de la clínica
           </p>
         </div>
 
         <Button
           leftIcon={<Plus className="h-4 w-4" />}
-          onClick={() => setCreateAreaModalOpen(true)}
+          onClick={() => setCreateSpeciesModalOpen(true)}
         >
-          Agregar área
+          Agregar especie
         </Button>
-        <AreaCreationForm
-          isOpen={createAreaModalOpen}
-          onClose={() => setCreateAreaModalOpen(false)}
-          onUserCreated={refreshAreas}
+        <SpeciesCreationForm
+          isOpen={createSpeciesModalOpen}
+          onClose={() => setCreateSpeciesModalOpen(false)}
+          onSpeciesCreated={refreshSpecies}
         />
-        {selectedArea && (
-          <AreaEditForm
-            isOpen={editAreaModalOpen}
-            onClose={() => setEditAreaModalOpen(false)}
-            onAreaUpdated={fetchAreas}
-            areaData={selectedArea}
+        {selectedSpecies && (
+          <SpeciesEditForm
+            isOpen={editSpeciesModalOpen}
+            onClose={() => setEditSpeciesModalOpen(false)}
+            onAreaUpdated={fetchSpecies}
+            speciesData={selectedSpecies}
           />
         )}
 
-        <AreaDetailsModal
-          isOpen={detailAreaModalOpen}
-          onClose={() => setDetailAreaModalOpen(false)}
-          areaData={selectedArea}
+        <SpeciesDetailsModal
+          isOpen={detailSpeciesModalOpen}
+          onClose={() => setDetailSpeciesModalOpen(false)}
+          speciesData={selectedSpecies}
         />
 
-        <AreaDeleteModal
-          isOpen={deleteAreaModalOpen}
-          onClose={() => setDeleteAreaModalOpen(false)}
-          onAreaDeleted={() => {
-            setDeleteAreaModalOpen(false);
-            refreshAreas();
+        <SpeciesDeleteModal
+          isOpen={deleteSpeciesModalOpen}
+          onClose={() => setDeleteSpeciesModalOpen(false)}
+          onSpeciesDeleted={() => {
+            setDeleteSpeciesModalOpen(false);
+            refreshSpecies();
           }}
-          areaData={selectedArea}
+          speciesData={selectedSpecies}
         />
       </div>
 
@@ -349,7 +349,7 @@ const AreaManagement = () => {
                     colSpan={columns.length}
                     className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
                   >
-                    No hay áreas
+                    No hay especies
                   </td>
                 </tr>
               )}
@@ -425,4 +425,4 @@ const AreaManagement = () => {
   );
 };
 
-export default AreaManagement;
+export default SpeciesManagement;

@@ -22,31 +22,31 @@ import {
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import { api } from "../../../services/api/index";
-import { IArea } from "../../../types/area.types";
-import AreaDetailsModal from "./DetailArea";
-import AreaCreationForm from "./AddArea";
 import axios from "axios";
 import toast from "react-hot-toast";
-import AreaEditForm from "./UpdateArea";
-import AreaDeleteModal from "./DeleteArea";
+import { IBreed } from "../../../types/breed.types";
+import BreedCreationForm from "./AddBreed";
+import BreedEditForm from "./UpdateBreed";
+import BreedDetailsModal from "./DetailBreed";
+import BreedDeleteModal from "./DeleteBreed";
 
-const AreaManagement = () => {
-  const [areas, setAreas] = useState<IArea[]>([]);
+const BreedManagement = () => {
+  const [breed, setBreed] = useState<IBreed[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [createAreaModalOpen, setCreateAreaModalOpen] = useState(false);
-  const [editAreaModalOpen, setEditAreaModalOpen] = useState(false);
-  const [selectedArea, setSelectedArea] = useState<IArea | null>(null);
-  const [deleteAreaModalOpen, setDeleteAreaModalOpen] = useState(false);
-  const [detailAreaModalOpen, setDetailAreaModalOpen] = useState(false);
+  const [createBreedModalOpen, setCreateBreedModalOpen] = useState(false);
+  const [editBreedModalOpen, setEditBreedModalOpen] = useState(false);
+  const [selectedBreed, setSelectedBreed] = useState<IBreed | null>(null);
+  const [deleteBreedModalOpen, setDeleteBreedModalOpen] = useState(false);
+  const [detailBreedModalOpen, setDetailBreedModalOpen] = useState(false);
 
-  const fetchAreas = async () => {
+  const fetchBreed = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/areas/");
-      setAreas(response.data);
+      const response = await api.get("/breeds/");
+      setBreed(response.data);
     } catch (err) {
       const validFields = ["detail"];
 
@@ -64,26 +64,26 @@ const AreaManagement = () => {
         });
       }
       toast.error(error);
-      console.error("Error fetching area data:", error);
+      console.error("Error fetching Breeds data:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const refreshAreas = () => {
-    fetchAreas();
+  const refreshBreed = () => {
+    fetchBreed();
   };
 
   useEffect(() => {
-    fetchAreas();
+    fetchBreed();
   }, []);
 
   //Handlers
-  const handleEditArea = async (areaId: number) => {
+  const handleEditBreed = async (breedId: number) => {
     try {
-      const response = await api.get(`/areas/${areaId}/`);
-      setSelectedArea(response.data);
-      setEditAreaModalOpen(true);
+      const response = await api.get(`/breeds/${breedId}/`);
+      setSelectedBreed(response.data);
+      setEditBreedModalOpen(true);
     } catch (err) {
       const validFields = ["detail"];
 
@@ -101,15 +101,15 @@ const AreaManagement = () => {
         });
       }
       toast.error(error);
-      console.error("Error fetching area data:", error);
+      console.error("Error fetching Breeds data:", error);
     }
   };
 
-  const handleViewArea = async (areaId: number) => {
+  const handleViewBreed = async (breedId: number) => {
     try {
-      const response = await api.get(`/areas/${areaId}/`);
-      setSelectedArea(response.data);
-      setDetailAreaModalOpen(true);
+      const response = await api.get(`/breeds/${breedId}/`);
+      setSelectedBreed(response.data);
+      setDetailBreedModalOpen(true);
     } catch (err) {
       const validFields = ["detail"];
 
@@ -127,15 +127,15 @@ const AreaManagement = () => {
         });
       }
       toast.error(error);
-      console.error("Error fetching area data:", error);
+      console.error("Error fetching Breeds data:", error);
     }
   };
 
-  const handleAreaDeleted = async (areaId: number) => {
+  const handleBreedDeleted = async (breedId: number) => {
     try {
-      const response = await api.get(`/areas/${areaId}/`);
-      setSelectedArea(response.data);
-      setDeleteAreaModalOpen(true);
+      const response = await api.get(`/breeds/${breedId}/`);
+      setSelectedBreed(response.data);
+      setDeleteBreedModalOpen(true);
     } catch (err) {
       const validFields = ["detail"];
 
@@ -153,19 +153,26 @@ const AreaManagement = () => {
         });
       }
       toast.error(error);
-      console.error("Error fetching area data:", error);
+      console.error("Error fetching Breeds data:", error);
     }
   };
 
-  const columnHelper = createColumnHelper<IArea>();
+  const columnHelper = createColumnHelper<IBreed>();
 
   const columns = [
     columnHelper.accessor("name", {
       header: "Nombre",
       cell: (info) => info.getValue(),
     }),
-    columnHelper.accessor("description", {
-      header: "Descripción",
+    columnHelper.accessor("species", {
+      header: "Especie",
+      cell: (info) => {
+        const spec = info.getValue();
+        return spec ? spec.name : "Sin especie";
+      },
+    }),
+    columnHelper.accessor("size_category", {
+      header: "Categoría de tamaño",
       cell: (info) => info.getValue(),
     }),
     columnHelper.display({
@@ -175,19 +182,19 @@ const AreaManagement = () => {
         <div className="flex space-x-2">
           <button
             className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
-            onClick={() => handleViewArea(cell.row.original.id)}
+            onClick={() => handleViewBreed(cell.row.original.id)}
           >
             <Eye className="h-4 w-4" />
           </button>
           <button
             className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
-            onClick={() => handleEditArea(cell.row.original.id)}
+            onClick={() => handleEditBreed(cell.row.original.id)}
           >
             <Edit className="h-4 w-4" />
           </button>
           <button
             className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
-            onClick={() => handleAreaDeleted(cell.row.original.id)}
+            onClick={() => handleBreedDeleted(cell.row.original.id)}
           >
             <Trash className="h-4 w-4" />
           </button>
@@ -197,7 +204,7 @@ const AreaManagement = () => {
   ];
 
   const table = useReactTable({
-    data: areas,
+    data: breed,
     columns,
     state: {
       sorting,
@@ -210,7 +217,7 @@ const AreaManagement = () => {
   });
 
   if (loading) {
-    return <div>Cargando áreas...</div>;
+    return <div>Cargando eBreed...</div>;
   }
 
   if (error) {
@@ -222,47 +229,47 @@ const AreaManagement = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Gestión de Áreas
+            Gestión de razas
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Gestione las áreas de la clínica
+            Gestione las razas de la clínica
           </p>
         </div>
 
         <Button
           leftIcon={<Plus className="h-4 w-4" />}
-          onClick={() => setCreateAreaModalOpen(true)}
+          onClick={() => setCreateBreedModalOpen(true)}
         >
-          Agregar área
+          Agregar Raza
         </Button>
-        <AreaCreationForm
-          isOpen={createAreaModalOpen}
-          onClose={() => setCreateAreaModalOpen(false)}
-          onUserCreated={refreshAreas}
+        <BreedCreationForm
+          isOpen={createBreedModalOpen}
+          onClose={() => setCreateBreedModalOpen(false)}
+          onBreedCreated={refreshBreed}
         />
-        {selectedArea && (
-          <AreaEditForm
-            isOpen={editAreaModalOpen}
-            onClose={() => setEditAreaModalOpen(false)}
-            onAreaUpdated={fetchAreas}
-            areaData={selectedArea}
+        {selectedBreed && (
+          <BreedEditForm
+            isOpen={editBreedModalOpen}
+            onClose={() => setEditBreedModalOpen(false)}
+            onAreaUpdated={fetchBreed}
+            breedData={selectedBreed}
           />
         )}
 
-        <AreaDetailsModal
-          isOpen={detailAreaModalOpen}
-          onClose={() => setDetailAreaModalOpen(false)}
-          areaData={selectedArea}
+        <BreedDetailsModal
+          isOpen={detailBreedModalOpen}
+          onClose={() => setDetailBreedModalOpen(false)}
+          breedData={selectedBreed}
         />
 
-        <AreaDeleteModal
-          isOpen={deleteAreaModalOpen}
-          onClose={() => setDeleteAreaModalOpen(false)}
-          onAreaDeleted={() => {
-            setDeleteAreaModalOpen(false);
-            refreshAreas();
+        <BreedDeleteModal
+          isOpen={deleteBreedModalOpen}
+          onClose={() => setDeleteBreedModalOpen(false)}
+          onBreedDeleted={() => {
+            setDeleteBreedModalOpen(false);
+            refreshBreed();
           }}
-          areaData={selectedArea}
+          breedData={selectedBreed}
         />
       </div>
 
@@ -349,7 +356,7 @@ const AreaManagement = () => {
                     colSpan={columns.length}
                     className="px-4 py-8 text-center text-gray-500 dark:text-gray-400"
                   >
-                    No hay áreas
+                    No hay Razas
                   </td>
                 </tr>
               )}
@@ -425,4 +432,4 @@ const AreaManagement = () => {
   );
 };
 
-export default AreaManagement;
+export default BreedManagement;

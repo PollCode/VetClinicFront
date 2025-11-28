@@ -72,16 +72,6 @@ const Sidebar = ({
       icon: <UsersRound className="h-5 w-5" />,
     },
     {
-      name: "Especies",
-      path: "/especies",
-      icon: <Shell className="h-5 w-5" />,
-    },
-    {
-      name: "Razas",
-      path: "/razas",
-      icon: <Dna className="h-5 w-5" />,
-    },
-    {
       name: "Pacientes",
       path: "/pacientes",
       icon: <Stethoscope className="h-5 w-5" />,
@@ -126,6 +116,18 @@ const Sidebar = ({
       name: "Áreas",
       path: "/areas",
       icon: <LandPlot className="h-5 w-5" />,
+      roles: ["admin"],
+    },
+    {
+      name: "Especies",
+      path: "/species",
+      icon: <Shell className="h-5 w-5" />,
+      roles: ["admin"],
+    },
+    {
+      name: "Razas",
+      path: "/breeds",
+      icon: <Dna className="h-5 w-5" />,
       roles: ["admin"],
     },
   ];
