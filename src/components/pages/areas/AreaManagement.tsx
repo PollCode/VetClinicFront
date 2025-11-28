@@ -22,31 +22,31 @@ import {
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import { api } from "../../../services/api/index";
-import { IUser } from "../../../types/user.types";
-import UserCreationForm from "./AddUser";
-import UserEditForm from "./UpdateUser";
-import UserDetailsModal from "./DetailUser";
-import toast from "react-hot-toast";
+import { IArea } from "../../../types/area.types";
+import AreaDetailsModal from "./DetailArea";
+import AreaCreationForm from "./AddArea";
 import axios from "axios";
-import UserDeleteModal from "./DeleteUser";
-//import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
+import AreaEditForm from "./UpdateArea";
+import AreaDeleteModal from "./DeleteArea";
 
-const UserManagement = () => {
+const AreaManagement = () => {
+  const [areas, setAreas] = useState<IArea[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [users, setUsers] = useState<IUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [userModalOpen, setUserModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [detailModalOpen, setDetailModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
+  const [error, setError] = useState("");
+  const [createAreaModalOpen, setCreateAreaModalOpen] = useState(false);
+  const [editAreaModalOpen, setEditAreaModalOpen] = useState(false);
+  const [selectedArea, setSelectedArea] = useState<IArea | null>(null);
+  const [deleteAreaModalOpen, setDeleteAreaModalOpen] = useState(false);
+  const [detailAreaModalOpen, setDetailAreaModalOpen] = useState(false);
 
-  const fetchUsers = async () => {
+  const fetchAreas = async () => {
     try {
-      const response = await api.get("/users/");
-      setUsers(response.data);
+      setLoading(true);
+      const response = await api.get("/areas/");
+      setAreas(response.data);
     } catch (err) {
       const validFields = ["detail"];
 
@@ -64,26 +64,26 @@ const UserManagement = () => {
         });
       }
       toast.error(error);
-      console.error("Error fetching user data:", error);
+      console.error("Error fetching area data:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const refetchUsers = async () => {
-    await fetchUsers();
+  const refreshAreas = () => {
+    fetchAreas();
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchAreas();
   }, []);
 
-  const handleEditUser = async (userId: number) => {
+  //Handlers
+  const handleEditArea = async (areaId: number) => {
     try {
-      const response = await api.get(`/users/${userId}/`);
-      const userData: IUser = response.data;
-      setSelectedUser({ ...userData });
-      setEditModalOpen(true);
+      const response = await api.get(`/areas/${areaId}/`);
+      setSelectedArea(response.data);
+      setEditAreaModalOpen(true);
     } catch (err) {
       const validFields = ["detail"];
 
@@ -105,11 +105,37 @@ const UserManagement = () => {
     }
   };
 
-  const handleViewUser = async (userId: number) => {
+  const handleViewArea = async (areaId: number) => {
     try {
-      const response = await api.get(`/users/${userId}/`);
-      setSelectedUser(response.data);
-      setDetailModalOpen(true);
+      const response = await api.get(`/areas/${areaId}/`);
+      setSelectedArea(response.data);
+      setDetailAreaModalOpen(true);
+    } catch (err) {
+      const validFields = ["detail"];
+
+      if (axios.isAxiosError(err) && err.response?.data) {
+        Object.entries(err.response.data).forEach(([key, value]) => {
+          const message = Array.isArray(value)
+            ? value.join(", ")
+            : String(value);
+
+          if (validFields.includes(key)) {
+            setError(message);
+          } else {
+            setError(message);
+          }
+        });
+      }
+      toast.error(error);
+      console.error("Error fetching area data:", error);
+    }
+  };
+
+  const handleAreaDeleted = async (areaId: number) => {
+    try {
+      const response = await api.get(`/areas/${areaId}/`);
+      setSelectedArea(response.data);
+      setDeleteAreaModalOpen(true);
     } catch (err) {
       const validFields = ["detail"];
 
@@ -131,114 +157,37 @@ const UserManagement = () => {
     }
   };
 
-  const handleUserDeleted = async (userId: number) => {
-    try {
-      const response = await api.get(`/users/${userId}/`);
-      setSelectedUser(response.data);
-      setDeleteModalOpen(true);
-    } catch (err) {
-      const validFields = ["detail"];
-
-      if (axios.isAxiosError(err) && err.response?.data) {
-        Object.entries(err.response.data).forEach(([key, value]) => {
-          const message = Array.isArray(value)
-            ? value.join(", ")
-            : String(value);
-
-          if (validFields.includes(key)) {
-            setError(message);
-          } else {
-            setError(message);
-          }
-        });
-      }
-      toast.error(error);
-      console.error("Error fetching user data:", error);
-    }
-  };
-
-  const columnHelper = createColumnHelper<IUser>();
+  const columnHelper = createColumnHelper<IArea>();
 
   const columns = [
-    columnHelper.accessor("first_name", {
+    columnHelper.accessor("name", {
       header: "Nombre",
       cell: (info) => info.getValue(),
     }),
-    columnHelper.accessor("last_name", {
-      header: "Apellidos",
+    columnHelper.accessor("description", {
+      header: "Descripción",
       cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor("username", {
-      header: "Usuario",
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor("rol", {
-      header: "Rol",
-      cell: (info) => {
-        const role = info.getValue() || "No definido";
-        const roleClasses = {
-          admin:
-            "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-500",
-          doctor:
-            "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-500",
-          laboratorista:
-            "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-500",
-          secretaria:
-            "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-500",
-        };
-
-        return (
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-medium ${
-              roleClasses[role as keyof typeof roleClasses] || "bg-gray-100"
-            }`}
-          >
-            {role}
-          </span>
-        );
-      },
-    }),
-    columnHelper.accessor("is_superuser", {
-      header: "Admin",
-      cell: (info) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
-            info.getValue()
-              ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-500"
-              : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
-          }`}
-        >
-          {info.getValue() ? "Yes" : "No"}
-        </span>
-      ),
-    }),
-    columnHelper.accessor("area", {
-      header: "Área",
-      cell: (info) => {
-        const area = info.getValue();
-        return area ? area.name : "Sin área";
-      },
     }),
     columnHelper.display({
       id: "actions",
-      header: "Operaciones",
+      header: "Actions",
       cell: (cell) => (
         <div className="flex space-x-2">
           <button
             className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
-            onClick={() => handleViewUser(cell.row.original.id)}
+            onClick={() => handleViewArea(cell.row.original.id)}
           >
             <Eye className="h-4 w-4" />
           </button>
           <button
             className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
-            onClick={() => handleEditUser(cell.row.original.id)}
+            onClick={() => handleEditArea(cell.row.original.id)}
           >
             <Edit className="h-4 w-4" />
           </button>
           <button
             className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
-            onClick={() => handleUserDeleted(cell.row.original.id)}
+            onClick={() => handleAreaDeleted(cell.row.original.id)}
           >
             <Trash className="h-4 w-4" />
           </button>
@@ -248,15 +197,12 @@ const UserManagement = () => {
   ];
 
   const table = useReactTable({
-    data: users,
+    data: areas,
     columns,
     state: {
       sorting,
-      globalFilter: searchQuery,
     },
     onSortingChange: setSorting,
-    onGlobalFilterChange: setSearchQuery,
-    globalFilterFn: "includesString",
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -264,7 +210,7 @@ const UserManagement = () => {
   });
 
   if (loading) {
-    return <div>Cargando usuarios...</div>;
+    return <div>Loading users...</div>;
   }
 
   if (error) {
@@ -276,51 +222,51 @@ const UserManagement = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Gestión de Usuarios
+            Gestión de Áreas
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Gestione los usuarios y sus roles
+            Gestione las áreas de la clínica
           </p>
         </div>
 
         <Button
           leftIcon={<Plus className="h-4 w-4" />}
-          onClick={() => setUserModalOpen(true)}
+          onClick={() => setCreateAreaModalOpen(true)}
         >
-          Agregar usuario
+          Agregar área
         </Button>
-        <UserCreationForm
-          isOpen={userModalOpen}
-          onClose={() => setUserModalOpen(false)}
-          onUserCreated={refetchUsers}
+        <AreaCreationForm
+          isOpen={createAreaModalOpen}
+          onClose={() => setCreateAreaModalOpen(false)}
+          onUserCreated={refreshAreas}
         />
-        {/* Modal de edición */}
-        {selectedUser && (
-          <UserEditForm
-            isOpen={editModalOpen}
-            onClose={() => setEditModalOpen(false)}
-            onUserUpdated={refetchUsers}
-            userData={selectedUser}
+        {selectedArea && (
+          <AreaEditForm
+            isOpen={editAreaModalOpen}
+            onClose={() => setEditAreaModalOpen(false)}
+            onAreaUpdated={fetchAreas}
+            areaData={selectedArea}
           />
         )}
 
-        <UserDetailsModal
-          isOpen={detailModalOpen}
-          onClose={() => setDetailModalOpen(false)}
-          userData={selectedUser}
+        <AreaDetailsModal
+          isOpen={detailAreaModalOpen}
+          onClose={() => setDetailAreaModalOpen(false)}
+          areaData={selectedArea}
         />
 
-        <UserDeleteModal
-          isOpen={deleteModalOpen}
-          onClose={() => setDeleteModalOpen(false)}
-          onUserDeleted={() => {
-            setDeleteModalOpen(false);
-            refetchUsers();
+        <AreaDeleteModal
+          isOpen={deleteAreaModalOpen}
+          onClose={() => setDeleteAreaModalOpen(false)}
+          onAreaDeleted={() => {
+            setDeleteAreaModalOpen(false);
+            refreshAreas();
           }}
-          userData={selectedUser}
+          areaData={selectedArea}
         />
       </div>
 
+      {/* Filters and Search */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -336,11 +282,16 @@ const UserManagement = () => {
         </div>
 
         <div className="flex gap-2">
+          {/* <Button variant="outline" leftIcon={<Filter className="h-4 w-4" />}>
+            Filtros
+          </Button> */}
           <Button variant="outline" leftIcon={<Download className="h-4 w-4" />}>
             Exportar
           </Button>
         </div>
       </div>
+
+      {/* Users Table */}
       <Card>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -405,17 +356,19 @@ const UserManagement = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
         <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
               <p className="text-sm text-gray-700 dark:text-gray-300">
-                Mostrando{" "}
+                Showing{" "}
                 <span className="font-medium">
                   {table.getState().pagination.pageIndex *
                     table.getState().pagination.pageSize +
                     1}
                 </span>{" "}
-                al{" "}
+                to{" "}
                 <span className="font-medium">
                   {Math.min(
                     (table.getState().pagination.pageIndex + 1) *
@@ -423,11 +376,11 @@ const UserManagement = () => {
                     table.getFilteredRowModel().rows.length
                   )}
                 </span>{" "}
-                de{" "}
+                of{" "}
                 <span className="font-medium">
                   {table.getFilteredRowModel().rows.length}
                 </span>{" "}
-                resultados
+                results
               </p>
             </div>
             <div className="flex gap-2">
@@ -437,7 +390,7 @@ const UserManagement = () => {
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
               >
-                Anterior
+                Previous
               </Button>
               <div className="flex items-center gap-1">
                 {Array.from({ length: table.getPageCount() }, (_, i) => i).map(
@@ -462,7 +415,7 @@ const UserManagement = () => {
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
               >
-                Siguiente
+                Next
               </Button>
             </div>
           </div>
@@ -472,4 +425,4 @@ const UserManagement = () => {
   );
 };
 
-export default UserManagement;
+export default AreaManagement;

@@ -11,6 +11,9 @@ const Dashboard = lazy(() => import("./components/pages/Dashboard"));
 const UserManagment = lazy(
   () => import("./components/pages/users/UserManagement")
 );
+const AreaManagement = lazy(
+  () => import("./components/pages/areas/AreaManagement")
+);
 const PatientManagement = lazy(
   () => import("./components/pages/PatientManagement")
 );
@@ -56,6 +59,16 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <UserManagment />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/areas"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <AreaManagement />
               </Layout>
             </ProtectedRoute>
           }

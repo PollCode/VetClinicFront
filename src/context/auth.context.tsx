@@ -1,9 +1,5 @@
 import { createContext, useState, useEffect, useCallback } from "react";
-import {
-  AuthContextType,
-  IAuthUser,
-  LoginData,
-} from "../types/auth/auth.types";
+import { AuthContextType, IAuthUser, LoginData } from "../types/auth.types";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/api/auth.service";
